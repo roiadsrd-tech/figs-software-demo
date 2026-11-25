@@ -737,3 +737,126 @@ body {
     transition: none;
   }
 }
+
+/* ==========================================================================
+   Interactive 3D Globe (cobe WebGL)
+   ========================================================================== */
+
+.craft-globe-wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: clamp(24px, 4vw, 56px);
+  align-items: center;
+  width: 100%;
+}
+
+.craft-globe-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.craft-globe-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: grab;
+  touch-action: pan-y;
+}
+
+.craft-globe-fallback {
+  width: 78%;
+  aspect-ratio: 1 / 1;
+  border-radius: 9999px;
+  border: 1px solid var(--craft-hairline);
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--accent, #0084e1) 28%, transparent), transparent 68%);
+}
+
+.craft-globe-readout {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  border: 1px solid var(--craft-hairline);
+  background: color-mix(in srgb, var(--bg-primary, #0b1220) 82%, transparent);
+  backdrop-filter: blur(10px);
+  font-size: 0.84rem;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.craft-globe-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  flex-shrink: 0;
+}
+
+.craft-globe-readout-name {
+  font-weight: 500;
+}
+
+.craft-globe-readout-detail {
+  opacity: 0.68;
+}
+
+.craft-globe-controls {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--craft-hairline);
+}
+
+.craft-globe-tab {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 4px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--craft-hairline);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: padding-left 260ms var(--craft-ease), opacity 220ms var(--craft-ease);
+  opacity: 0.64;
+}
+
+.craft-globe-tab:hover,
+.craft-globe-tab.is-active {
+  opacity: 1;
+  padding-left: 12px;
+}
+
+.craft-globe-tab.is-active .craft-globe-tab-name {
+  color: var(--accent, currentColor);
+}
+
+.craft-globe-tab-name {
+  font-family: var(--font-display, inherit);
+  font-size: clamp(1.12rem, 1.8vw, 1.45rem);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+
+.craft-globe-tab-detail {
+  font-size: 0.85rem;
+  opacity: 0.68;
+  text-align: right;
+}
+
+@media (max-width: 860px) {
+  .craft-globe-wrap {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}

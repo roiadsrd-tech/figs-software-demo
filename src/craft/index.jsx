@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import createGlobe from 'cobe';
 import {
   motion,
   AnimatePresence,
@@ -624,5 +625,241 @@ export function CounterMetric({ value, label, note = '', className = '' }) {
         <div style={{ marginTop: 4, fontSize: '0.8rem', opacity: 0.52 }}>{note}</div>
       )}
     </motion.div>
+  );
+}
+
+const KNOWN_GEO_COORDS = {
+  'republica dominicana': [18.4861, -69.9312],
+  'santo domingo': [18.4861, -69.9312],
+  'santiago': [19.4517, -70.697],
+  'punta cana': [18.5601, -68.3725],
+  'san pedro de macoris': [18.4539, -69.3086],
+  'venezuela': [10.4806, -66.9036],
+  'caracas': [10.4806, -66.9036],
+  'colombia': [4.711, -74.0721],
+  'bogota': [4.711, -74.0721],
+  'medellin': [6.2442, -75.5812],
+  'peru': [-12.0464, -77.0428],
+  'lima': [-12.0464, -77.0428],
+  'panama': [8.9824, -79.5199],
+  'mexico': [19.4326, -99.1332],
+  'argentina': [-34.6037, -58.3816],
+  'chile': [-33.4489, -70.6693],
+  'ecuador': [-0.1807, -78.4678],
+  'costa rica': [9.9281, -84.0907],
+  'bolivia': [-16.4897, -68.1193],
+  'paraguay': [-25.2637, -57.5759],
+  'uruguay': [-34.9011, -56.1645],
+  'estados unidos': [37.0902, -95.7129],
+  'miami': [25.7617, -80.1918],
+  'new york': [40.7128, -74.006],
+  'espana': [40.4168, -3.7038],
+  'madrid': [40.4168, -3.7038]
+};
+
+function resolveGeoCoords(location) {
+  if (typeof location?.lat === 'number' && typeof location?.lng === 'number') {
+    return [location.lat, location.lng];
+  }
+  const norm = String(location?.name || location?.country || location?.city || location || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim();
+  for (const [key, coords] of Object.entries(KNOWN_GEO_COORDS)) {
+    if (norm.includes(key)) return coords;
+  }
+  return [18.4861, -69.9312];
+}
+
+function hexToRgbNormalized(hex = '#38BDF8') {
+  const clean = String(hex).replace(/[^0-9a-fA-F]/g, '');
+  const full = clean.length === 3 ? clean.split('').map(c => c + c).join('') : clean.padEnd(6, '0').slice(0, 6);
+  const n = parseInt(full, 16) || 0;
+  return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255];
+}
+
+/**
+ * InteractiveGlobe — Smooth WebGL 3D rotating globe (powered by cobe)
+ * Highlights active countries/cities with brand accent markers and allows drag-to-spin + click-to-focus.
+ */
+export function InteractiveGlobe({
+  locations = [],
+  markers,
+  accentColor = '#0084E1',
+  themeMode = 'dark',
+  size = 460,
+  className = ''
+}) {
+  const rawList = Array.isArray(markers) && markers.length > 0 ? markers : locations;
+  const normalizedLocations = rawList.map((loc, idx) => {
+    const name = typeof loc === 'string' ? loc : (loc?.name || loc?.country || loc?.city || `Ubicación ${idx + 1}`);
+    const detail = typeof loc === 'string' ? '' : (loc?.detail || loc?.city || loc?.note || '');
+    const coords = resolveGeoCoords(loc);
+    return { name, detail, lat: coords[0], lng: coords[1] };
+  });
+
+  const canvasRef = useRef(null);
+  const pointerInteracting = useRef(null);
+  const pointerInteractionMovement = useRef(0);
+  const focusPhiRef = useRef(null);
+  const focusThetaRef = useRef(0.28);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [webglFailed, setWebglFailed] = useState(false);
+
+  const locationToAngles = (lat, lng) => [
+    Math.PI - ((lng * Math.PI) / 180 - Math.PI / 2),
+    (lat * Math.PI) / 180
+  ];
+
+  const handleSelectLocation = (idx) => {
+    setActiveIndex(idx);
+    const target = normalizedLocations[idx];
+    if (target) {
+      const [phi, theta] = locationToAngles(target.lat, target.lng);
+      focusPhiRef.current = phi;
+      focusThetaRef.current = theta;
+    }
+  };
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    let currentPhi = 1.2;
+    let currentTheta = 0.28;
+    let width = 0;
+    let globe = null;
+
+    if (normalizedLocations[0]) {
+      const [phi0, theta0] = locationToAngles(normalizedLocations[0].lat, normalizedLocations[0].lng);
+      currentPhi = phi0;
+      currentTheta = theta0;
+    }
+
+    const onResize = () => {
+      if (canvas) width = canvas.offsetWidth;
+    };
+    window.addEventListener('resize', onResize);
+    onResize();
+
+    const isDark = themeMode !== 'light';
+    const markerRgb = hexToRgbNormalized(accentColor);
+    const baseRgb = isDark ? [0.09, 0.14, 0.24] : [0.88, 0.87, 0.84];
+    const glowRgb = isDark
+      ? [markerRgb[0] * 0.45 + 0.08, markerRgb[1] * 0.45 + 0.12, markerRgb[2] * 0.45 + 0.22]
+      : [0.95, 0.94, 0.91];
+
+    try {
+      globe = createGlobe(canvas, {
+        devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
+        width: (width || size) * 2,
+        height: (width || size) * 2,
+        phi: currentPhi,
+        theta: currentTheta,
+        dark: isDark ? 1 : 0,
+        diffuse: 1.4,
+        mapSamples: 14000,
+        mapBrightness: isDark ? 6.5 : 1.8,
+        baseColor: baseRgb,
+        markerColor: markerRgb,
+        glowColor: glowRgb,
+        markers: normalizedLocations.map((loc, idx) => ({
+          location: [loc.lat, loc.lng],
+          size: idx === activeIndex ? 0.11 : 0.075
+        })),
+        onRender: (state) => {
+          if (focusPhiRef.current !== null) {
+            const distPhi = focusPhiRef.current - currentPhi;
+            currentPhi += distPhi * 0.08;
+            currentTheta += (focusThetaRef.current - currentTheta) * 0.08;
+            if (Math.abs(distPhi) < 0.01) focusPhiRef.current = null;
+          } else if (pointerInteracting.current === null) {
+            currentPhi += 0.0038;
+          }
+          state.phi = currentPhi + pointerInteractionMovement.current;
+          state.theta = currentTheta;
+          state.width = (width || size) * 2;
+          state.height = (width || size) * 2;
+        }
+      });
+    } catch (_) {
+      setWebglFailed(true);
+    }
+
+    return () => {
+      window.removeEventListener('resize', onResize);
+      if (globe && typeof globe.destroy === 'function') {
+        globe.destroy();
+      }
+    };
+  }, [accentColor, themeMode, size, activeIndex, normalizedLocations.length]);
+
+  const activeLoc = normalizedLocations[activeIndex] || normalizedLocations[0];
+
+  return (
+    <div data-craft="interactive-globe" className={`craft-globe-wrap ${className}`.trim()}>
+      <div className="craft-globe-stage" style={{ maxWidth: size }}>
+        {!webglFailed ? (
+          <canvas
+            ref={canvasRef}
+            className="craft-globe-canvas"
+            onPointerDown={(e) => {
+              pointerInteracting.current = e.clientX - pointerInteractionMovement.current * 140;
+              focusPhiRef.current = null;
+              e.currentTarget.style.cursor = 'grabbing';
+            }}
+            onPointerUp={(e) => {
+              pointerInteracting.current = null;
+              e.currentTarget.style.cursor = 'grab';
+            }}
+            onPointerOut={(e) => {
+              pointerInteracting.current = null;
+              e.currentTarget.style.cursor = 'grab';
+            }}
+            onMouseMove={(e) => {
+              if (pointerInteracting.current !== null) {
+                const delta = e.clientX - pointerInteracting.current;
+                pointerInteractionMovement.current = delta / 140;
+              }
+            }}
+            onTouchMove={(e) => {
+              if (pointerInteracting.current !== null && e.touches[0]) {
+                const delta = e.touches[0].clientX - pointerInteracting.current;
+                pointerInteractionMovement.current = delta / 140;
+              }
+            }}
+          />
+        ) : (
+          <div className="craft-globe-fallback" style={{ borderColor: accentColor }} />
+        )}
+        {activeLoc && (
+          <div className="craft-globe-readout">
+            <span className="craft-globe-dot" style={{ backgroundColor: accentColor }} />
+            <span className="craft-globe-readout-name">{activeLoc.name}</span>
+            {activeLoc.detail && (
+              <span className="craft-globe-readout-detail">· {activeLoc.detail}</span>
+            )}
+          </div>
+        )}
+      </div>
+
+      {normalizedLocations.length > 0 && (
+        <div className="craft-globe-controls" role="tablist" aria-label="Países y ubicaciones">
+          {normalizedLocations.map((loc, idx) => (
+            <button
+              key={`${loc.name}-${idx}`}
+              type="button"
+              role="tab"
+              aria-selected={idx === activeIndex}
+              className={`craft-globe-tab ${idx === activeIndex ? 'is-active' : ''}`}
+              onClick={() => handleSelectLocation(idx)}
+            >
+              <span className="craft-globe-tab-name">{loc.name}</span>
+              {loc.detail && <span className="craft-globe-tab-detail">{loc.detail}</span>}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
