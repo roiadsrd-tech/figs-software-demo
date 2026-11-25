@@ -1,1264 +1,1213 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Server,
-  Database,
-  Monitor,
-  Smartphone,
-  CheckCircle2,
-  ArrowLeft,
-  ArrowRight,
-  Menu,
-  X,
-  MapPin,
-  Phone,
-  ShieldCheck,
-  ExternalLink,
-  Cpu,
-  Layers,
-  FileCheck,
-  Building2,
-  Clock
-} from 'lucide-react';
+import { ArrowUpRight, ArrowLeft } from 'lucide-react';
 import {
   EditorialSurface,
   RevealText,
   ClipRevealImage,
   MagneticButton,
   ScrollProgressBar,
-  EditorialAccordion,
+  InteractiveGlobe,
   CounterMetric,
-  InteractiveGlobe
+  EditorialAccordion
 } from './craft';
 
-const WHATSAPP_URL =
-  'https://wa.me/18495644000?text=Hola%2C%20vi%20el%20sitio%20web%20de%20Figs%20Software%20y%20me%20gustar%C3%ADa%20conversar%20sobre%20la%20implementaci%C3%B3n%20de%20facturaci%C3%B3n%20electr%C3%B3nica%20y%20ERP.';
-const WHATSAPP_PACKAGE_URL =
-  'https://wa.me/18495644000?text=Hola%2C%20me%20interesa%20adquirir%20el%20Paquete%20de%20Facturaci%C3%B3n%20Electr%C3%B3nica%20DGII%20por%20RD%2430%2C000.';
-const INSTAGRAM_URL = 'https://www.instagram.com/figs.software/';
+// --- VERIFIED DATA SOURCE (100% GROUNDED IN brief.md) ---
+const BRAND = {
+  name: 'Figs Software',
+  tagline: 'Software empresarial ERP y proveedores autorizados de facturación electrónica',
+  phoneDisplay: '849-564-4000',
+  whatsappUrl:
+    'https://wa.me/8495644000?text=Hola%2C%20vi%20el%20portafolio%20web%20de%20Figs%20Software%20y%20me%20gustar%C3%ADa%20conversar%20sobre%20un%20proyecto.',
+  instagramUrl: 'https://www.instagram.com/figs.software/',
+  hq: 'Santo Domingo, República Dominicana',
+  countries: [
+    'Santo Domingo, República Dominicana',
+    'Caracas, Venezuela',
+    'Colombia',
+    'Perú',
+    'Panamá'
+  ],
+  quote:
+    'La facturación electrónica no es complicada cuando entiendes el proceso. Se trata de hacerlo en orden, con planificación y acompañamiento.'
+};
 
 const CLIENT_LOGOS = [
-  { id: 1, src: './client-logos/client_logo_1.jpg', name: 'Empresa Cliente' },
-  { id: 2, src: './client-logos/client_logo_2.jpg', name: 'Empresa Cliente' },
-  { id: 3, src: './client-logos/client_logo_3.png', name: 'AroyPedal' },
-  { id: 4, src: './client-logos/client_logo_4.jpg', name: 'Empresa Cliente' },
-  { id: 5, src: './client-logos/client_logo_5.jpg', name: 'Empresa Cliente' },
-  { id: 6, src: './client-logos/client_logo_6.jpg', name: 'Couture' },
-  { id: 7, src: './client-logos/client_logo_7.jpg', name: 'Empresa Cliente' },
-  { id: 8, src: './client-logos/client_logo_8.jpg', name: 'Disfármaco' },
-  { id: 9, src: './client-logos/client_logo_9.jpg', name: 'Empresa Cliente' },
-  { id: 10, src: './client-logos/client_logo_10.jpg', name: 'Empresa Cliente' },
-  { id: 11, src: './client-logos/client_logo_11.png', name: 'Delta' },
-  { id: 12, src: './client-logos/client_logo_12.jpg', name: 'Empresa Cliente' },
-  { id: 13, src: './client-logos/client_logo_13.jpg', name: 'Empresa Cliente' },
-  { id: 14, src: './client-logos/client_logo_14.jpg', name: 'Empresa Cliente' },
-  { id: 15, src: './client-logos/client_logo_15.png', name: 'Interdeco' },
-  { id: 16, src: './client-logos/client_logo_16.png', name: 'AHC' }
+  { name: 'Empresa cliente', src: './client-logos/client_logo_1.jpg' },
+  { name: 'Empresa cliente', src: './client-logos/client_logo_2.jpg' },
+  { name: 'Aro y Pedal', src: './client-logos/client_logo_3.png' },
+  { name: 'Empresa cliente', src: './client-logos/client_logo_4.jpg' },
+  { name: 'Empresa cliente', src: './client-logos/client_logo_5.jpg' },
+  { name: 'Couture', src: './client-logos/client_logo_6.jpg' },
+  { name: 'Empresa cliente', src: './client-logos/client_logo_7.jpg' },
+  { name: 'Disfarmaco', src: './client-logos/client_logo_8.jpg' },
+  { name: 'Empresa cliente', src: './client-logos/client_logo_9.jpg' },
+  { name: 'Empresa cliente', src: './client-logos/client_logo_10.jpg' },
+  { name: 'Delta', src: './client-logos/client_logo_11.png' },
+  { name: 'Empresa cliente', src: './client-logos/client_logo_12.jpg' },
+  { name: 'Empresa cliente', src: './client-logos/client_logo_13.jpg' },
+  { name: 'Empresa cliente', src: './client-logos/client_logo_14.jpg' },
+  { name: 'Interdeco', src: './client-logos/client_logo_15.png' },
+  { name: 'AHC', src: './client-logos/client_logo_16.png' }
 ];
 
-const DGII_STATUS_MODES = [
+const SERVICES = [
   {
-    id: 'ecf',
-    label: 'Emisión e-CF',
-    title: 'Proveedor Autorizado DGII',
-    detail: 'Emisión y recepción directa de comprobantes fiscales electrónicos.'
+    number: '01',
+    slug: 'facturacion-electronica',
+    title: 'Facturación electrónica DGII',
+    shortDesc: 'Certificación e implementación de comprobantes e-CF bajo normativa DGII.',
+    fullDesc:
+      'Servicio integral de certificación e implementación de facturación electrónica (e-CF) para operar bajo los estándares de la DGII.',
+    photo: './media/ai_service_1.webp',
+    features: [
+      {
+        title: 'Certificación DGII',
+        desc: 'Alineación total con los requerimientos fiscales vigentes.'
+      },
+      {
+        title: 'Emisión y recepción e-CF',
+        desc: 'Comprobantes fiscales electrónicos válidos en cada venta.'
+      },
+      {
+        title: 'Soporte técnico',
+        desc: 'Acompañamiento remoto especializado durante todo el proceso.'
+      }
+    ]
   },
   {
-    id: 'offline',
-    label: 'Red Local',
-    title: 'Operación continua sin internet',
-    detail: 'Facturación en red local con sincronización automática al reconectar.'
+    number: '02',
+    slug: 'erp-empresarial',
+    title: 'Sistema ERP empresarial',
+    shortDesc: 'Control centralizado de ventas, inventario y finanzas en Windows.',
+    fullDesc:
+      'Aplicaciones de escritorio estables para Microsoft Windows que centralizan ventas, inventario y finanzas empresariales.',
+    photo: './media/ai_service_2.webp',
+    features: [
+      {
+        title: 'Ventas e inventario',
+        desc: 'Gestión integrada para reducir errores manuales diarios.'
+      },
+      {
+        title: 'Entorno Microsoft Windows',
+        desc: 'Interfaz rápida y amigable para operación continua.'
+      },
+      {
+        title: 'Toma de decisiones',
+        desc: 'Información financiera consolidada para dirección y gerencia.'
+      }
+    ]
+  },
+  {
+    number: '03',
+    slug: 'automatizacion-sql',
+    title: 'Arquitectura SQL Server',
+    shortDesc: 'Sincronización local confiable incluso ante fallos de conexión.',
+    fullDesc:
+      'Infraestructura sobre Microsoft SQL Server con sincronización local que protege la continuidad operativa ante cortes de internet.',
+    photo: './media/ai_service_3.webp',
+    features: [
+      {
+        title: 'Motor SQL Server',
+        desc: 'Integridad relacional diseñada para alto volumen transaccional.'
+      },
+      {
+        title: 'Continuidad sin internet',
+        desc: 'Operación desde red local con sincronización automática.'
+      },
+      {
+        title: 'Automatización de procesos',
+        desc: 'Eliminación de tareas repetitivas en caja y administración.'
+      }
+    ]
+  }
+];
+
+const PROCESS_STEPS = [
+  {
+    step: '01',
+    title: 'Asesoría inicial',
+    desc: 'Evaluamos las necesidades específicas de tu empresa.'
+  },
+  {
+    step: '02',
+    title: 'Implementación',
+    desc: 'Despliegue del software y configuración de módulos.'
+  },
+  {
+    step: '03',
+    title: 'Capacitación y soporte',
+    desc: 'Entrenamiento a tu equipo y soporte técnico continuo.'
+  }
+];
+
+const FAQS = [
+  {
+    question: '¿Es el sistema ERP solo para empresas grandes?',
+    answer:
+      'No, Figs Software es una solución escalable diseñada para cualquier empresa que busque organizar sus procesos, sin importar su tamaño.'
+  },
+  {
+    question: '¿Qué pasa si falla el internet?',
+    answer:
+      'Nuestra aplicación de escritorio permite seguir trabajando desde la red local y sincronizar la información automáticamente al restablecerse la conexión.'
+  }
+];
+
+const WORKSPACE_TABS = [
+  {
+    id: 'ecf',
+    label: 'e-CF DGII',
+    heading: 'Facturación electrónica autorizada',
+    subtitle: 'Proveedores autorizados DGII · Emisión y recepción XML',
+    rows: [
+      { code: 'E31', label: 'Crédito fiscal electrónico', state: 'Validado DGII' },
+      { code: 'E32', label: 'Consumo electrónico', state: 'Emitido' },
+      { code: 'E34', label: 'Nota de crédito e-CF', state: 'Sincronizado' },
+      { code: 'E44', label: 'Regímenes especiales', state: 'Homologado' }
+    ]
+  },
+  {
+    id: 'erp',
+    label: 'ERP Windows',
+    heading: 'Gestión centralizada de operaciones',
+    subtitle: 'Microsoft Windows · Ventas, inventario y finanzas',
+    rows: [
+      { code: 'VNT', label: 'Facturación y punto de venta', state: 'Integrado' },
+      { code: 'INV', label: 'Control de inventario y almacén', state: 'Tiempo real' },
+      { code: 'FIN', label: 'Cuentas por cobrar y pagar', state: 'Conciliado' },
+      { code: 'REP', label: 'Reportes gerenciales', state: 'Disponible' }
+    ]
   },
   {
     id: 'sql',
     label: 'SQL Server',
-    title: 'Base de datos corporativa',
-    detail: 'Compatible con Windows, Mac, tablets y smartphones en tiempo real.'
+    heading: 'Respaldo y sincronización local',
+    subtitle: 'Microsoft SQL Server · Continuidad ante fallos de red',
+    rows: [
+      { code: 'SQL', label: 'Base de datos relacional', state: 'Local / Red' },
+      { code: 'SYN', label: 'Sincronización automática', state: 'Al reconectar' },
+      { code: 'WIN', label: 'Terminales de escritorio', state: 'Operación local' },
+      { code: 'SOP', label: 'Acompañamiento técnico', state: 'Incluido' }
+    ]
   }
 ];
 
-const CORPORATE_STATS = [
-  { value: '+28', label: 'Años de experiencia' },
-  { value: '5', label: 'Países en LATAM' },
-  { value: '+2,574', label: 'Empresas activas' }
-];
+// --- BESPOKE HERO VISUAL: ENTERPRISE ERP & e-CF WORKSPACE ---
+function HeroErpWorkspace() {
+  const [activeTab, setActiveTab] = useState('ecf');
+  const current = WORKSPACE_TABS.find((t) => t.id === activeTab) || WORKSPACE_TABS[0];
 
-const SERVICES_DATA = [
-  {
-    number: '01',
-    title: 'Facturación Electrónica DGII',
-    slug: 'facturacion-electronica-dgii',
-    kicker: 'Cumplimiento fiscal autorizado',
-    shortDescription:
-      'Emisión y recepción de comprobantes e-CF certificados ante la DGII.',
-    description:
-      'Te guiamos paso a paso para que implementes la emisión y recepción de comprobantes fiscales electrónicos (e-CF) sin detener tu operación y cumpliendo con las normativas de la DGII.',
-    photo: './media/ai_service_2.webp',
-    features: [
-      {
-        title: 'Certificación e implementación',
-        desc: 'Proceso guiado de configuración de e-CF ante la DGII.'
-      },
-      {
-        title: 'Emisión y recepción',
-        desc: 'Capacidad para procesar comprobantes fiscales electrónicos de forma segura.'
-      },
-      {
-        title: 'Acompañamiento experto',
-        desc: 'Soporte técnico y asesoría continua para tu equipo.'
-      }
-    ],
-    waMessage: 'Hola, deseo más información sobre Facturación Electrónica DGII con Figs Software.'
-  },
-  {
-    number: '02',
-    title: 'Sistema ERP y Gestión Empresarial',
-    slug: 'sistema-erp-gestion',
-    kicker: 'Control total de operaciones',
-    shortDescription:
-      'Inventario, nómina automática y operación continua incluso sin internet.',
-    description:
-      'Una aplicación estable y amigable con más de 20 años de evolución en el mercado, instalada en tu computador con Microsoft Windows y accesible desde múltiples dispositivos.',
-    photo: './media/post_20.jpg',
-    features: [
-      {
-        title: 'Control de Inventario',
-        desc: 'Gestión de productos en múltiples almacenes, lotes, seriales y alertas de stock.'
-      },
-      {
-        title: 'Módulo de Nómina y Personal',
-        desc: 'Cálculo automático de ISR, TSS, horas extras, bonificaciones y sueldo de Navidad.'
-      },
-      {
-        title: 'Aplicación de Escritorio y Red Local',
-        desc: 'Sigue trabajando y operando incluso cuando el internet falla, sincronizando al reconectar.'
-      }
-    ],
-    waMessage: 'Hola, me gustaría agendar una demo del Sistema ERP y Gestión Empresarial de Figs Software.'
-  },
-  {
-    number: '03',
-    title: 'POS Retail & Wholesale',
-    slug: 'pos-retail-wholesale',
-    kicker: 'Puntos de venta especializados',
-    shortDescription:
-      'Ventas, promociones, cierres de caja y control multisucursal integrado.',
-    description:
-      'Solución especializada para comercios minoristas y mayoristas que permite administrar ventas, inventario, promociones, múltiples sucursales y cierres de caja desde un solo lugar.',
-    photo: './media/post_21.jpg',
-    features: [
-      {
-        title: 'Control de Caja',
-        desc: 'Registro detallado de ingresos, salidas y cierres de caja diarios.'
-      },
-      {
-        title: 'Promociones y Descuentos',
-        desc: 'Administración flexible de campañas comerciales y programas de fidelización.'
-      },
-      {
-        title: 'Multi-sucursal',
-        desc: 'Monitoreo centralizado de operaciones en distintas ubicaciones.'
-      }
-    ],
-    waMessage: 'Hola, quisiera información sobre el sistema POS Retail & Wholesale de Figs Software.'
-  }
-];
+  return (
+    <div className="erp-workspace-frame" aria-label="Vista del sistema Figs Software ERP">
+      <div className="erp-window-bar">
+        <div className="erp-window-brand">
+          <img
+            src="./media/logo_real.jpg"
+            alt="Figs Software"
+            style={{
+              width: '24px',
+              height: '24px',
+              borderRadius: '9999px',
+              backgroundColor: '#FFFFFF',
+              objectFit: 'cover'
+            }}
+          />
+          <span>Figs ERP · Windows / SQL Server</span>
+        </div>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--accent)' }}>
+          DGII e-CF
+        </span>
+      </div>
 
-const FAQS_DATA = [
-  {
-    question: '¿Cuándo debo implementar la facturación electrónica en mi empresa?',
-    answer:
-      'La fecha límite para contribuyentes pequeños, micros y no clasificados según la DGII es el 15 de noviembre de 2026. Te recomendamos prepararte con anticipación para realizar una transición sin estrés.'
-  },
-  {
-    question: '¿Puedo seguir trabajando si falla el internet?',
-    answer:
-      'Sí. Con la aplicación de escritorio de Figs puedes continuar operando desde tu red local y la información se sincronizará automáticamente al restablecerse la conexión.'
-  },
-  {
-    question: '¿Qué incluye la solución de facturación electrónica de Figs?',
-    answer:
-      'Incluye certificación e implementación ante la DGII, licencia de por vida de Figs® POS Retail o POS Restaurante, emisión y recepción de 5,000 comprobantes, 2 horas de instalación y capacitación, y 1 año de soporte técnico remoto.'
-  }
-];
+      <div className="erp-window-tabs" role="tablist" aria-label="Módulos del sistema">
+        {WORKSPACE_TABS.map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            role="tab"
+            aria-selected={activeTab === tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`erp-tab-btn ${activeTab === tab.id ? 'is-active' : ''}`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
 
+      <div className="erp-workspace-body">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={current.id}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <h2
+              style={{
+                fontSize: '1.2rem',
+                fontWeight: 500,
+                marginBottom: '0.3rem',
+                color: 'var(--text-primary)'
+              }}
+            >
+              {current.heading}
+            </h2>
+            <p style={{ fontSize: '0.84rem', color: 'var(--text-muted)', marginBottom: '1.25rem' }}>
+              {current.subtitle}
+            </p>
+
+            <div>
+              {current.rows.map((row) => (
+                <div key={row.code} className="erp-ledger-row">
+                  <span className="erp-ledger-code">{row.code}</span>
+                  <span className="erp-ledger-meta">{row.label}</span>
+                  <span className="erp-ledger-status">{row.state}</span>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}
+
+// --- NAVIGATION ---
+function Navigation({ currentRoute, onNavigate }) {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const links = [
+    { label: 'Inicio', path: '#/' },
+    { label: 'Servicios', path: '#/servicios' },
+    { label: 'Casos', path: '#/casos' },
+    { label: 'Nosotros', path: '#/nosotros' },
+    { label: 'Contacto', path: '#/contacto' }
+  ];
+
+  return (
+    <nav className="site-nav">
+      <div className="container-bespoke nav-inner">
+        <a
+          href="#/"
+          onClick={(e) => {
+            e.preventDefault();
+            setMobileOpen(false);
+            onNavigate('#/');
+          }}
+          className="brand-emblem-wrap"
+        >
+          <img
+            src="./media/logo_real.jpg"
+            alt="Logo Figs Software"
+            className="brand-logo-emblem"
+          />
+          <span>{BRAND.name}</span>
+        </a>
+
+        <div className="nav-links-desktop">
+          {links.map((link) => {
+            const isActive =
+              link.path === '#/'
+                ? currentRoute === '#/' || currentRoute === ''
+                : currentRoute.startsWith(link.path);
+            return (
+              <a
+                key={link.path}
+                href={link.path}
+                onClick={(e) => {
+                  e.preventDefault();
+                  onNavigate(link.path);
+                }}
+                className={`nav-link-item ${isActive ? 'active' : ''}`}
+              >
+                {link.label}
+              </a>
+            );
+          })}
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <MagneticButton
+            href={BRAND.whatsappUrl}
+            target="_blank"
+            variant="primary"
+            className="nav-cta-desktop"
+            style={{ padding: '11px 22px', minHeight: '44px', fontSize: '0.9rem' }}
+          >
+            Agendar demo
+          </MagneticButton>
+
+          <button
+            type="button"
+            className="mobile-nav-toggle"
+            aria-label={mobileOpen ? 'Cerrar menú' : 'Abrir menú'}
+            onClick={() => setMobileOpen(!mobileOpen)}
+          >
+            {mobileOpen ? '✕' : '☰'}
+          </button>
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="mobile-nav-drawer"
+          >
+            {links.map((link) => (
+              <a
+                key={link.path}
+                href={link.path}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setMobileOpen(false);
+                  onNavigate(link.path);
+                }}
+                className="nav-link-item"
+                style={{ fontSize: '1.08rem', padding: '10px 0' }}
+              >
+                {link.label}
+              </a>
+            ))}
+            <a
+              href={BRAND.whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary-figs"
+              style={{ width: '100%', marginTop: '0.5rem' }}
+            >
+              Agendar demo
+            </a>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </nav>
+  );
+}
+
+// --- PAGE: HOME (#/) ---
+function HomePage({ onNavigate }) {
+  return (
+    <>
+      {/* 1. HERO SECTION (Asymmetric 12-col Split: 7 / 5) */}
+      <EditorialSurface variant="architectural" tone="primary">
+        <div className="container-bespoke">
+          <div className="hero-split-grid">
+            <div>
+              <RevealText as="h1" className="hero-title" immediate>
+                Automatiza tu empresa con precisión
+              </RevealText>
+              <p className="lead-text" style={{ marginBottom: '2.25rem' }}>
+                ERP estable y facturación electrónica DGII con 28 años en Latinoamérica.
+              </p>
+              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                <MagneticButton href={BRAND.whatsappUrl} target="_blank" variant="primary">
+                  Agendar demo
+                </MagneticButton>
+                <MagneticButton
+                  href="#/servicios"
+                  variant="secondary"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onNavigate('#/servicios');
+                  }}
+                >
+                  Ver soluciones
+                </MagneticButton>
+              </div>
+            </div>
+
+            <HeroErpWorkspace />
+          </div>
+        </div>
+      </EditorialSurface>
+
+      {/* 2. CONFIANZA EMPRESARIAL: 16 LOGOS REALES + CIFRAS VERIFICADAS */}
+      <EditorialSurface variant="grain" tone="secondary">
+        <div className="container-bespoke section-spacing">
+          <div style={{ marginBottom: '2.5rem', maxWidth: '620px' }}>
+            <RevealText as="h2" className="section-title">
+              Empresas que confían en Figs Software
+            </RevealText>
+          </div>
+
+          <div className="client-logos-grid">
+            {CLIENT_LOGOS.map((client, idx) => (
+              <div key={idx} className="client-logo-card" title={client.name}>
+                <img
+                  src={client.src}
+                  alt={client.name}
+                  className="client-logo-img"
+                  loading="lazy"
+                />
+              </div>
+            ))}
+          </div>
+
+          <div className="metrics-editorial-row">
+            <CounterMetric value="2,574" label="Empresas activas" />
+            <CounterMetric value="28" label="Años de experiencia" />
+            <CounterMetric value="5" label="Países de operación" />
+          </div>
+        </div>
+      </EditorialSurface>
+
+      {/* 3. SOLUCIONES DE GESTIÓN (3 CARDS CON VISUALES COHESIVOS) */}
+      <EditorialSurface variant="mesh" tone="primary">
+        <div className="container-bespoke section-spacing">
+          <div style={{ maxWidth: '620px' }}>
+            <RevealText as="h2" className="section-title">
+              Soluciones de gestión empresarial
+            </RevealText>
+            <p className="lead-text">
+              Sistemas robustos sobre Microsoft Windows y SQL Server.
+            </p>
+          </div>
+
+          <div className="services-bespoke-grid">
+            {SERVICES.map((srv) => (
+              <article key={srv.slug} className="service-bespoke-card">
+                <ClipRevealImage
+                  src={srv.photo}
+                  alt={srv.title}
+                  aspectRatio="16 / 10"
+                  radius="0px"
+                  parallax
+                />
+                <div className="service-card-body">
+                  <h3 className="card-title" style={{ marginBottom: '0.65rem' }}>
+                    {srv.title}
+                  </h3>
+                  <p
+                    style={{
+                      color: 'var(--text-muted)',
+                      fontSize: '0.94rem',
+                      marginBottom: '1.75rem',
+                      flexGrow: 1
+                    }}
+                  >
+                    {srv.shortDesc}
+                  </p>
+                  <a
+                    href={`#/servicios/${srv.slug}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onNavigate(`#/servicios/${srv.slug}`);
+                    }}
+                    className="craft-link-underline"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      color: 'var(--text-primary)',
+                      fontSize: '0.94rem',
+                      fontWeight: 500,
+                      width: 'fit-content'
+                    }}
+                  >
+                    <span>Explorar módulo</span>
+                    <ArrowUpRight size={17} strokeWidth={1.6} />
+                  </a>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </EditorialSurface>
+
+      {/* 4. INVERSIÓN INTELIGENTE: PROMOCIÓN DGII RD$30,000 (CONTRAST) */}
+      <EditorialSurface variant="contrast" tone="contrast">
+        <div className="container-bespoke section-spacing">
+          <div className="contrast-promo-card">
+            <div>
+              <RevealText
+                as="h2"
+                className="section-title"
+                style={{ color: '#07111E', marginBottom: '1rem' }}
+              >
+                Facturación electrónica DGII
+              </RevealText>
+              <p
+                style={{
+                  color: '#334155',
+                  fontSize: '1.02rem',
+                  lineHeight: 1.55,
+                  maxWidth: '500px',
+                  marginBottom: '1.75rem'
+                }}
+              >
+                Certificación e implementación e-CF con soporte técnico incluido.
+              </p>
+              <MagneticButton
+                href={BRAND.whatsappUrl}
+                target="_blank"
+                variant="primary"
+                style={{ backgroundColor: '#07111E', color: '#FFFFFF' }}
+              >
+                Solicitar plan
+              </MagneticButton>
+            </div>
+
+            <div className="contrast-price-panel">
+              <div className="contrast-price-tag" style={{ marginBottom: '0.75rem' }}>
+                RD$30,000
+              </div>
+              <p style={{ fontSize: '0.9rem', color: '#475569' }}>
+                Promoción limitada · Proveedores autorizados DGII
+              </p>
+            </div>
+          </div>
+        </div>
+      </EditorialSurface>
+
+      {/* 5. COBERTURA MULTIPAÍS (INTERACTIVE GLOBE) & PROCESO */}
+      <EditorialSurface variant="ambient" tone="primary">
+        <div className="container-bespoke section-spacing">
+          <div style={{ maxWidth: '640px', marginBottom: '2.5rem' }}>
+            <RevealText as="h2" className="section-title">
+              Presencia en 5 países
+            </RevealText>
+            <p className="lead-text">
+              Operación continua en República Dominicana, Venezuela, Colombia, Perú y Panamá.
+            </p>
+          </div>
+
+          <InteractiveGlobe
+            locations={BRAND.countries}
+            accentColor="#0096C7"
+            themeMode="dark"
+            size={460}
+          />
+
+          <div className="advantages-grid">
+            {PROCESS_STEPS.map((item) => (
+              <div key={item.step} className="advantage-item">
+                <span className="advantage-index">{item.step}</span>
+                <h3 className="card-title" style={{ marginBottom: '0.5rem' }}>
+                  {item.title}
+                </h3>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.94rem' }}>{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </EditorialSurface>
+
+      {/* 6. CIERRE & CONTACTO DIRECTO */}
+      <EditorialSurface variant="architectural" tone="secondary">
+        <div className="container-bespoke section-spacing">
+          <div className="cta-closing-panel">
+            <div>
+              <RevealText as="h2" className="section-title" style={{ marginBottom: '0.75rem' }}>
+                Agenda tu diagnóstico técnico
+              </RevealText>
+              <p className="lead-text">
+                Conversa directo con nuestro equipo en Santo Domingo.
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+              <MagneticButton href={BRAND.whatsappUrl} target="_blank" variant="primary">
+                WhatsApp
+              </MagneticButton>
+              <MagneticButton
+                href="#/contacto"
+                variant="secondary"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onNavigate('#/contacto');
+                }}
+              >
+                Ver contacto
+              </MagneticButton>
+            </div>
+          </div>
+        </div>
+      </EditorialSurface>
+    </>
+  );
+}
+
+// --- PAGE: SERVICIOS (#/servicios) ---
+function ServicesPage({ onNavigate }) {
+  return (
+    <div style={{ paddingTop: '4.25rem' }}>
+      <EditorialSurface variant="architectural" tone="primary">
+        <div className="container-bespoke subpage-hero">
+          <RevealText as="h1" className="hero-title" immediate>
+            Módulos para tu empresa
+          </RevealText>
+          <p className="lead-text">
+            Software ERP y facturación electrónica DGII con estabilidad comprobada.
+          </p>
+        </div>
+      </EditorialSurface>
+
+      <EditorialSurface variant="mesh" tone="secondary">
+        <div className="container-bespoke section-spacing">
+          <div className="services-bespoke-grid" style={{ marginTop: 0 }}>
+            {SERVICES.map((srv) => (
+              <article key={srv.slug} className="service-bespoke-card">
+                <ClipRevealImage
+                  src={srv.photo}
+                  alt={srv.title}
+                  aspectRatio="16 / 10"
+                  radius="0px"
+                  parallax
+                />
+                <div className="service-card-body">
+                  <h2 className="card-title" style={{ marginBottom: '0.75rem' }}>
+                    {srv.title}
+                  </h2>
+                  <p
+                    style={{
+                      color: 'var(--text-muted)',
+                      fontSize: '0.94rem',
+                      marginBottom: '1.75rem',
+                      flexGrow: 1
+                    }}
+                  >
+                    {srv.fullDesc}
+                  </p>
+                  <MagneticButton
+                    href={`#/servicios/${srv.slug}`}
+                    variant="primary"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onNavigate(`#/servicios/${srv.slug}`);
+                    }}
+                    style={{ width: '100%' }}
+                  >
+                    Ver detalles
+                  </MagneticButton>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </EditorialSurface>
+
+      <EditorialSurface variant="ambient" tone="primary">
+        <div className="container-bespoke section-spacing">
+          <div style={{ maxWidth: '720px', margin: '0 auto' }}>
+            <RevealText as="h2" className="section-title" style={{ marginBottom: '2rem' }}>
+              Preguntas frecuentes
+            </RevealText>
+            <EditorialAccordion items={FAQS} />
+          </div>
+        </div>
+      </EditorialSurface>
+    </div>
+  );
+}
+
+// --- PAGE: DETALLE DE SERVICIO (#/servicios/<slug>) ---
+function ServiceDetailPage({ slug, onNavigate }) {
+  const service = SERVICES.find((s) => s.slug === slug) || SERVICES[0];
+
+  return (
+    <div style={{ paddingTop: '4.25rem' }}>
+      <EditorialSurface variant="architectural" tone="primary">
+        <div className="container-bespoke subpage-hero">
+          <div style={{ marginBottom: '2rem' }}>
+            <a
+              href="#/servicios"
+              onClick={(e) => {
+                e.preventDefault();
+                onNavigate('#/servicios');
+              }}
+              className="craft-link-underline"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                color: 'var(--text-muted)',
+                fontSize: '0.92rem'
+              }}
+            >
+              <ArrowLeft size={16} strokeWidth={1.6} />
+              <span>Volver a servicios</span>
+            </a>
+          </div>
+
+          <div className="detail-hero-split">
+            <div>
+              <RevealText as="h1" className="hero-title" immediate>
+                {service.title}
+              </RevealText>
+              <p className="lead-text" style={{ marginBottom: '2.25rem' }}>
+                {service.fullDesc}
+              </p>
+
+              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                <MagneticButton
+                  href={`https://wa.me/8495644000?text=Hola%2C%20quisiera%20informaci%C3%B3n%20sobre%20${encodeURIComponent(
+                    service.title
+                  )}%20de%20Figs%20Software.`}
+                  target="_blank"
+                  variant="primary"
+                >
+                  Cotizar módulo
+                </MagneticButton>
+                <MagneticButton
+                  href="#/contacto"
+                  variant="secondary"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onNavigate('#/contacto');
+                  }}
+                >
+                  Ver contacto
+                </MagneticButton>
+              </div>
+            </div>
+
+            <ClipRevealImage
+              src={service.photo}
+              alt={service.title}
+              aspectRatio="4 / 3"
+              priority
+              parallax
+            />
+          </div>
+        </div>
+      </EditorialSurface>
+
+      <EditorialSurface variant="ambient" tone="secondary">
+        <div className="container-bespoke section-spacing">
+          <RevealText as="h2" className="section-title">
+            Capacidades clave
+          </RevealText>
+
+          <div className="detail-specs-grid">
+            {service.features.map((feat, idx) => (
+              <div key={idx} className="spec-item-box">
+                <span className="advantage-index">0{idx + 1}</span>
+                <h3 className="card-title" style={{ marginBottom: '0.5rem' }}>
+                  {feat.title}
+                </h3>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.94rem' }}>{feat.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </EditorialSurface>
+    </div>
+  );
+}
+
+// --- PAGE: CASOS (#/casos) ---
+function CasesPage() {
+  return (
+    <div style={{ paddingTop: '4.25rem' }}>
+      <EditorialSurface variant="architectural" tone="primary">
+        <div className="container-bespoke subpage-hero">
+          <RevealText as="h1" className="hero-title" immediate>
+            Empresas en operación
+          </RevealText>
+          <p className="lead-text">
+            Más de 2,574 negocios activos respaldan nuestra trayectoria en Latinoamérica.
+          </p>
+        </div>
+      </EditorialSurface>
+
+      <EditorialSurface variant="mesh" tone="secondary">
+        <div className="container-bespoke section-spacing">
+          <div className="metrics-editorial-row" style={{ marginTop: 0 }}>
+            <CounterMetric value="2,574" label="Empresas activas" />
+            <CounterMetric value="28" label="Años de experiencia" />
+            <CounterMetric value="5" label="Países de operación" />
+          </div>
+        </div>
+      </EditorialSurface>
+
+      <EditorialSurface variant="ambient" tone="primary">
+        <div className="container-bespoke section-spacing">
+          <RevealText as="h2" className="section-title" style={{ marginBottom: '2.5rem' }}>
+            Directorio de clientes
+          </RevealText>
+
+          <div className="client-logos-grid">
+            {CLIENT_LOGOS.map((client, idx) => (
+              <div key={idx} className="client-logo-card" style={{ height: '74px' }} title={client.name}>
+                <img
+                  src={client.src}
+                  alt={client.name}
+                  className="client-logo-img"
+                  loading="lazy"
+                />
+              </div>
+            ))}
+          </div>
+
+          <div
+            style={{
+              marginTop: '4rem',
+              padding: 'clamp(2rem, 4vw, 3rem)',
+              borderTop: '1px solid var(--border-hairline)',
+              borderBottom: '1px solid var(--border-hairline)'
+            }}
+          >
+            <blockquote
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: 'clamp(1.25rem, 2.3vw, 1.85rem)',
+                fontWeight: 400,
+                color: 'var(--text-primary)',
+                lineHeight: 1.35,
+                marginBottom: '1rem',
+                maxWidth: '820px'
+              }}
+            >
+              “{BRAND.quote}”
+            </blockquote>
+            <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+              Figs Software · Santo Domingo
+            </span>
+          </div>
+        </div>
+      </EditorialSurface>
+    </div>
+  );
+}
+
+// --- PAGE: NOSOTROS (#/nosotros) ---
+function AboutPage() {
+  return (
+    <div style={{ paddingTop: '4.25rem' }}>
+      <EditorialSurface variant="architectural" tone="primary">
+        <div className="container-bespoke subpage-hero">
+          <RevealText as="h1" className="hero-title" immediate>
+            28 años de software confiable
+          </RevealText>
+          <p className="lead-text">
+            Desarrollo y despliegue de soluciones ERP para ventas, inventario y facturación electrónica.
+          </p>
+        </div>
+      </EditorialSurface>
+
+      <EditorialSurface variant="ambient" tone="secondary">
+        <div className="container-bespoke section-spacing">
+          <div className="about-editorial-split">
+            <div>
+              <RevealText as="h2" className="section-title" style={{ marginBottom: '1.5rem' }}>
+                Continuidad pensada para el negocio real
+              </RevealText>
+              <p style={{ color: 'var(--text-muted)', fontSize: '1rem', lineHeight: 1.65, marginBottom: '1.25rem' }}>
+                Figs Software desarrolla aplicaciones estables y amigables para entornos de escritorio con Microsoft Windows y sincronización local sobre SQL Server.
+              </p>
+              <p style={{ color: 'var(--text-muted)', fontSize: '1rem', lineHeight: 1.65, marginBottom: '2rem' }}>
+                Nuestro enfoque automatiza procesos manuales y garantiza la continuidad operativa incluso ante fallos de conexión.
+              </p>
+              <MagneticButton href={BRAND.whatsappUrl} target="_blank" variant="primary">
+                Hablar con asesor
+              </MagneticButton>
+            </div>
+
+            <ClipRevealImage
+              src="./media/post_20.jpg"
+              alt="Figs Software gestión empresarial"
+              aspectRatio="4 / 5"
+              parallax
+            />
+          </div>
+        </div>
+      </EditorialSurface>
+    </div>
+  );
+}
+
+// --- PAGE: CONTACTO (#/contacto) ---
+function ContactPage() {
+  return (
+    <div style={{ paddingTop: '4.25rem' }}>
+      <EditorialSurface variant="architectural" tone="primary">
+        <div className="container-bespoke subpage-hero">
+          <RevealText as="h1" className="hero-title" immediate>
+            Conversemos sobre tu empresa
+          </RevealText>
+          <p className="lead-text">
+            Atención directa para demostraciones ERP y certificación e-CF ante la DGII.
+          </p>
+        </div>
+      </EditorialSurface>
+
+      <EditorialSurface variant="mesh" tone="secondary">
+        <div className="container-bespoke section-spacing">
+          <div className="detail-specs-grid" style={{ marginTop: 0 }}>
+            <div className="spec-item-box">
+              <h2 className="card-title" style={{ marginBottom: '0.6rem' }}>
+                Sede central
+              </h2>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.94rem', marginBottom: '1.5rem' }}>
+                {BRAND.hq}
+              </p>
+              <MagneticButton
+                href="https://maps.google.com/?q=Santo+Domingo,+Republica+Dominicana"
+                target="_blank"
+                variant="secondary"
+              >
+                Abrir mapa
+              </MagneticButton>
+            </div>
+
+            <div className="spec-item-box">
+              <h2 className="card-title" style={{ marginBottom: '0.6rem' }}>
+                WhatsApp oficial
+              </h2>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.94rem', marginBottom: '1.5rem' }}>
+                {BRAND.phoneDisplay}
+              </p>
+              <MagneticButton href={BRAND.whatsappUrl} target="_blank" variant="primary">
+                Escribir ahora
+              </MagneticButton>
+            </div>
+
+            <div className="spec-item-box">
+              <h2 className="card-title" style={{ marginBottom: '0.6rem' }}>
+                Instagram
+              </h2>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.94rem', marginBottom: '1.5rem' }}>
+                @figs.software
+              </p>
+              <MagneticButton href={BRAND.instagramUrl} target="_blank" variant="secondary">
+                Ver perfil
+              </MagneticButton>
+            </div>
+          </div>
+
+          <div style={{ marginTop: '4.5rem' }}>
+            <RevealText as="h2" className="section-title" style={{ marginBottom: '2rem' }}>
+              Cobertura regional
+            </RevealText>
+            <InteractiveGlobe
+              locations={BRAND.countries}
+              accentColor="#0096C7"
+              themeMode="dark"
+              size={440}
+            />
+          </div>
+        </div>
+      </EditorialSurface>
+    </div>
+  );
+}
+
+// --- FOOTER ---
+function Footer({ onNavigate }) {
+  return (
+    <footer className="site-footer">
+      <div className="container-bespoke">
+        <div className="footer-top-grid">
+          <div>
+            <div className="brand-emblem-wrap" style={{ marginBottom: '1.1rem' }}>
+              <img
+                src="./media/logo_real.jpg"
+                alt="Figs Software Logo"
+                className="brand-logo-emblem"
+              />
+              <span style={{ fontSize: '1.18rem' }}>{BRAND.name}</span>
+            </div>
+            <p
+              style={{
+                color: 'var(--text-muted)',
+                fontSize: '0.92rem',
+                maxWidth: '360px',
+                lineHeight: 1.55,
+                marginBottom: '1rem'
+              }}
+            >
+              {BRAND.tagline}.
+            </p>
+            <p style={{ color: 'var(--gold-accent)', fontSize: '0.84rem', fontFamily: 'var(--font-mono)' }}>
+              Proveedores autorizados DGII
+            </p>
+          </div>
+
+          <div>
+            <span className="footer-heading">Navegación</span>
+            <ul
+              style={{
+                listStyle: 'none',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.7rem',
+                fontSize: '0.92rem',
+                color: 'var(--text-muted)'
+              }}
+            >
+              <li>
+                <a
+                  href="#/"
+                  className="craft-link-underline"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onNavigate('#/');
+                  }}
+                >
+                  Inicio
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#/servicios"
+                  className="craft-link-underline"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onNavigate('#/servicios');
+                  }}
+                >
+                  Servicios
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#/casos"
+                  className="craft-link-underline"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onNavigate('#/casos');
+                  }}
+                >
+                  Casos
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#/nosotros"
+                  className="craft-link-underline"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onNavigate('#/nosotros');
+                  }}
+                >
+                  Nosotros
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#/contacto"
+                  className="craft-link-underline"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onNavigate('#/contacto');
+                  }}
+                >
+                  Contacto
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <span className="footer-heading">Contacto</span>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem', marginBottom: '0.45rem' }}>
+              {BRAND.hq}
+            </p>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem', marginBottom: '1.25rem' }}>
+              {BRAND.phoneDisplay}
+            </p>
+            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+              <a
+                href={BRAND.whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-primary-figs"
+                style={{ padding: '12px 22px', minHeight: '44px', fontSize: '0.88rem' }}
+              >
+                WhatsApp
+              </a>
+              <a
+                href={BRAND.instagramUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-secondary-figs"
+                style={{ padding: '12px 22px', minHeight: '44px', fontSize: '0.88rem' }}
+              >
+                Instagram
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div className="footer-bottom-bar">
+          <div>© {new Date().getFullYear()} {BRAND.name}</div>
+          <div>Microsoft Windows · SQL Server · DGII</div>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+// --- MAIN APP & HASH ROUTER ---
 export default function App() {
-  const [currentHash, setCurrentHash] = useState(window.location.hash || '#/');
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [dgiiModeIndex, setDgiiModeIndex] = useState(0);
-  const activeDgiiMode = DGII_STATUS_MODES[dgiiModeIndex];
+  const [currentRoute, setCurrentRoute] = useState(window.location.hash || '#/');
 
   useEffect(() => {
     const handleHashChange = () => {
-      const newHash = window.location.hash || '#/';
-      setCurrentHash(newHash);
+      const h = window.location.hash || '#/';
+      setCurrentRoute(h);
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      setMobileMenuOpen(false);
     };
 
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  const navigate = (hash) => {
-    window.location.hash = hash;
+  const navigate = (route) => {
+    window.location.hash = route;
+    setCurrentRoute(route);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Router parsing
-  const isHome = currentHash === '#/' || currentHash === '';
-  const isServices = currentHash === '#/servicios';
-  const isServiceDetail = currentHash.startsWith('#/servicios/');
-  const serviceSlug = isServiceDetail ? currentHash.replace('#/servicios/', '') : null;
-  const currentService = SERVICES_DATA.find((s) => s.slug === serviceSlug);
-
-  const isCases = currentHash === '#/casos';
-  const isAbout = currentHash === '#/nosotros';
-  const isContact = currentHash === '#/contacto';
+  const renderCurrentView = () => {
+    if (currentRoute === '#/' || currentRoute === '') {
+      return <HomePage onNavigate={navigate} />;
+    }
+    if (currentRoute === '#/servicios') {
+      return <ServicesPage onNavigate={navigate} />;
+    }
+    if (currentRoute.startsWith('#/servicios/')) {
+      const slug = currentRoute.replace('#/servicios/', '');
+      return <ServiceDetailPage slug={slug} onNavigate={navigate} />;
+    }
+    if (currentRoute === '#/casos') {
+      return <CasesPage />;
+    }
+    if (currentRoute === '#/nosotros') {
+      return <AboutPage />;
+    }
+    if (currentRoute === '#/contacto') {
+      return <ContactPage />;
+    }
+    return <HomePage onNavigate={navigate} />;
+  };
 
   return (
-    <div className="site-wrapper">
-      <ScrollProgressBar color="var(--accent)" />
+    <div className="app-shell" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <ScrollProgressBar color="#0096C7" />
+      <Navigation currentRoute={currentRoute} onNavigate={navigate} />
 
-      {/* Main Fixed Navbar */}
-      <header className="header-nav">
-        <div className="container header-nav-inner">
-          <a
-            href="#/"
-            className="brand-emblem-wrap"
-            onClick={(e) => {
-              e.preventDefault();
-              navigate('#/');
-            }}
+      <main style={{ flexGrow: 1 }}>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentRoute}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
           >
-            <img
-              src="./media/logo_real.jpg"
-              alt="Figs Software Logo"
-              className="brand-emblem-logo"
-            />
-            <div>
-              <div className="brand-name">Figs Software</div>
-              <div className="brand-subtext">ERP & Facturación DGII</div>
-            </div>
-          </a>
-
-          {/* Desktop Nav Links */}
-          <nav className="nav-links-desktop">
-            <a
-              href="#/"
-              className={`nav-link-item ${isHome ? 'is-active' : ''}`}
-              onClick={(e) => {
-                e.preventDefault();
-                navigate('#/');
-              }}
-            >
-              Inicio
-            </a>
-            <a
-              href="#/servicios"
-              className={`nav-link-item ${isServices || isServiceDetail ? 'is-active' : ''}`}
-              onClick={(e) => {
-                e.preventDefault();
-                navigate('#/servicios');
-              }}
-            >
-              Servicios
-            </a>
-            <a
-              href="#/casos"
-              className={`nav-link-item ${isCases ? 'is-active' : ''}`}
-              onClick={(e) => {
-                e.preventDefault();
-                navigate('#/casos');
-              }}
-            >
-              Casos Reales
-            </a>
-            <a
-              href="#/nosotros"
-              className={`nav-link-item ${isAbout ? 'is-active' : ''}`}
-              onClick={(e) => {
-                e.preventDefault();
-                navigate('#/nosotros');
-              }}
-            >
-              Nosotros
-            </a>
-            <a
-              href="#/contacto"
-              className={`nav-link-item ${isContact ? 'is-active' : ''}`}
-              onClick={(e) => {
-                e.preventDefault();
-                navigate('#/contacto');
-              }}
-            >
-              Contacto
-            </a>
-          </nav>
-
-          {/* Nav Action CTA */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-            <a
-              href={WHATSAPP_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="nav-cta-btn"
-            >
-              Agendar demo
-            </a>
-
-            <button
-              type="button"
-              className="mobile-menu-toggle"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Abrir menú"
-            >
-              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile Navigation Panel */}
-        <AnimatePresence>
-          {mobileMenuOpen && (
-            <motion.div
-              className="mobile-nav-panel"
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.25 }}
-            >
-              <a
-                href="#/"
-                className="mobile-nav-link"
-                onClick={(e) => {
-                  e.preventDefault();
-                  navigate('#/');
-                }}
-              >
-                Inicio
-              </a>
-              <a
-                href="#/servicios"
-                className="mobile-nav-link"
-                onClick={(e) => {
-                  e.preventDefault();
-                  navigate('#/servicios');
-                }}
-              >
-                Servicios
-              </a>
-              <a
-                href="#/casos"
-                className="mobile-nav-link"
-                onClick={(e) => {
-                  e.preventDefault();
-                  navigate('#/casos');
-                }}
-              >
-                Casos Reales
-              </a>
-              <a
-                href="#/nosotros"
-                className="mobile-nav-link"
-                onClick={(e) => {
-                  e.preventDefault();
-                  navigate('#/nosotros');
-                }}
-              >
-                Nosotros
-              </a>
-              <a
-                href="#/contacto"
-                className="mobile-nav-link"
-                onClick={(e) => {
-                  e.preventDefault();
-                  navigate('#/contacto');
-                }}
-              >
-                Contacto
-              </a>
-              <a
-                href={WHATSAPP_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="nav-cta-btn"
-                style={{ marginTop: '10px', textAlign: 'center' }}
-              >
-                Agendar demo WhatsApp
-              </a>
-            </motion.div>
-          )}
+            {renderCurrentView()}
+          </motion.div>
         </AnimatePresence>
-      </header>
+      </main>
 
-      {/* Page Routing Views with AnimatePresence */}
-      <AnimatePresence mode="wait">
-        {/* VIEW: HOME (#/) */}
-        {isHome && (
-          <motion.main
-            key="page-home"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.3 }}
-          >
-            {/* 1. HERO SECTION (Split 55/45) */}
-            <EditorialSurface variant="mesh" tone="primary" className="hero-section">
-              <div className="container">
-                <div className="hero-grid">
-                  <div className="hero-content">
-                    <RevealText as="h1" immediate className="hero-title">
-                      Automatiza con software especializado
-                    </RevealText>
-                    <p className="hero-subtitle">
-                      Cumple con la DGII de forma rápida, económica y sin detener tu empresa.
-                    </p>
-                    <div className="hero-actions">
-                      <MagneticButton
-                        href={WHATSAPP_URL}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        variant="primary"
-                      >
-                        Agendar demo
-                      </MagneticButton>
-                      <MagneticButton
-                        onClick={() => navigate('#/servicios')}
-                        variant="secondary"
-                      >
-                        Ver soluciones
-                      </MagneticButton>
-                    </div>
-                  </div>
-
-                  <div className="hero-visual-frame">
-                    <img
-                      src="./media/ai_service_2.webp"
-                      alt="Figs Software Plataforma ERP y DGII"
-                      className="hero-visual-img"
-                    />
-                    <div className="hero-floating-card">
-                      <div className="hero-status-top">
-                        <div>
-                          <div className="hero-badge-title">{activeDgiiMode.title}</div>
-                          <div className="hero-badge-sub">{activeDgiiMode.detail}</div>
-                        </div>
-                        <ShieldCheck size={22} color="var(--accent-hover)" style={{ flexShrink: 0 }} />
-                      </div>
-                      <div className="hero-status-tabs" role="tablist" aria-label="Capacidades de la plataforma">
-                        {DGII_STATUS_MODES.map((mode, idx) => (
-                          <button
-                            key={mode.id}
-                            type="button"
-                            role="tab"
-                            aria-selected={dgiiModeIndex === idx}
-                            className={`hero-status-tab ${dgiiModeIndex === idx ? 'is-active' : ''}`}
-                            onClick={() => setDgiiModeIndex(idx)}
-                          >
-                            {mode.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </EditorialSurface>
-
-            {/* 2. SOCIAL PROOF — LOGOS REALES DE CLIENTES */}
-            <section className="logos-section">
-              <div className="container">
-                <div className="logos-heading-wrap">
-                  <span className="logos-label">Empresas que confían en Figs Software</span>
-                </div>
-                <div className="logos-grid">
-                  {CLIENT_LOGOS.map((client) => (
-                    <div key={client.id} className="client-logo-pill" title={client.name}>
-                      <img
-                        src={client.src}
-                        alt={client.name}
-                        className="client-logo-img"
-                        loading="lazy"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-            {/* 3. SERVICIOS / SOLUCIONES INTEGRALES */}
-            <EditorialSurface variant="ambient" tone="secondary" style={{ paddingBlock: 'clamp(56px, 9vh, 90px)' }}>
-              <div className="container">
-                <div className="section-head centered">
-                  <RevealText as="h2">Soluciones integrales de gestión</RevealText>
-                  <p className="section-sub">
-                    Plataformas estables para optimizar operaciones y cumplir con la DGII.
-                  </p>
-                </div>
-
-                <div className="services-grid">
-                  {SERVICES_DATA.map((service) => (
-                    <div key={service.slug} className="service-card">
-                      <div className="service-card-media">
-                        <img
-                          src={service.photo}
-                          alt={service.title}
-                          className="service-card-img"
-                          loading="lazy"
-                        />
-                      </div>
-                      <div className="service-card-body">
-                        <h3 className="service-card-title">{service.title}</h3>
-                        <p className="service-card-desc">{service.shortDescription}</p>
-                        <a
-                          href={`#/servicios/${service.slug}`}
-                          className="service-card-link craft-link-underline"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            navigate(`#/servicios/${service.slug}`);
-                          }}
-                        >
-                          Conocer detalles <ArrowRight size={16} />
-                        </a>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </EditorialSurface>
-
-            {/* 4. IMPLEMENTACIÓN INMEDIATA / PAQUETE DESTACADO (HIGH CONTRAST) */}
-            <EditorialSurface variant="contrast" tone="contrast" style={{ paddingBlock: 'clamp(56px, 9vh, 90px)' }}>
-              <div className="container">
-                <div className="package-box">
-                  <div className="package-left">
-                    <h2 className="package-title">Facturación electrónica integral</h2>
-                    <p className="package-desc">
-                      Implementación autorizada por la DGII, configurada para tu negocio con soporte directo.
-                    </p>
-
-                    <div className="package-features-list">
-                      <div className="package-feat-item">
-                        <CheckCircle2 size={18} color="#008EE6" />
-                        <span>Certificación ante la DGII</span>
-                      </div>
-                      <div className="package-feat-item">
-                        <CheckCircle2 size={18} color="#008EE6" />
-                        <span>Licencia de por vida Figs® POS</span>
-                      </div>
-                      <div className="package-feat-item">
-                        <CheckCircle2 size={18} color="#008EE6" />
-                        <span>5,000 comprobantes fiscales</span>
-                      </div>
-                      <div className="package-feat-item">
-                        <CheckCircle2 size={18} color="#008EE6" />
-                        <span>2 horas de instalación y capacitación</span>
-                      </div>
-                      <div className="package-feat-item">
-                        <CheckCircle2 size={18} color="#008EE6" />
-                        <span>1 año de soporte técnico remoto</span>
-                      </div>
-                      <div className="package-feat-item">
-                        <CheckCircle2 size={18} color="#008EE6" />
-                        <span>POS Retail o POS Restaurante</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="package-right">
-                    <div className="package-price-tag">RD$30,000</div>
-                    <div className="package-price-note">Pago único · Sin cargos ocultos</div>
-                    <a
-                      href={WHATSAPP_PACKAGE_URL}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="package-cta-btn"
-                    >
-                      Adquirir paquete
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </EditorialSurface>
-
-            {/* 5. PRESENCIA LATAM CON GLOBO 3D Y MÉTRICAS */}
-            <EditorialSurface variant="architectural" tone="primary" style={{ paddingBlock: 'clamp(56px, 9vh, 90px)' }}>
-              <div className="container">
-                <div className="coverage-grid">
-                  <div className="coverage-stats-col">
-                    <RevealText as="h2">Trayectoria y cobertura regional</RevealText>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '1.05rem', lineHeight: 1.6 }}>
-                      Fundados en 1997 para auditorías globales. Hoy operamos en cinco países de Latinoamérica.
-                    </p>
-
-                    <div className="coverage-stats-row">
-                      {CORPORATE_STATS.map((stat, idx) => (
-                        <motion.div
-                          key={stat.label}
-                          initial={{ opacity: 0, y: 18 }}
-                          whileInView={{ opacity: 1, y: 0 }}
-                          viewport={{ once: true, amount: 'some' }}
-                          transition={{ duration: 0.45, delay: idx * 0.1, ease: [0.22, 1, 0.36, 1] }}
-                        >
-                          <CounterMetric value={stat.value} label={stat.label} />
-                        </motion.div>
-                      ))}
-                    </div>
-
-                    <div style={{ marginTop: '12px' }}>
-                      <MagneticButton onClick={() => navigate('#/nosotros')} variant="secondary">
-                        Nuestra historia
-                      </MagneticButton>
-                    </div>
-                  </div>
-
-                  <div className="coverage-globe-col">
-                    <InteractiveGlobe
-                      locations={[
-                        'República Dominicana',
-                        'Colombia',
-                        'Venezuela',
-                        'Perú',
-                        'Panamá'
-                      ]}
-                      accentColor="#008EE6"
-                      themeMode="dark"
-                    />
-                  </div>
-                </div>
-              </div>
-            </EditorialSurface>
-
-            {/* 6. PREGUNTAS FRECUENTES & CIERRE */}
-            <EditorialSurface variant="grain" tone="secondary" style={{ paddingBlock: 'clamp(56px, 9vh, 90px)' }}>
-              <div className="container" style={{ maxWidth: '860px' }}>
-                <div className="section-head centered">
-                  <RevealText as="h2">Preguntas frecuentes</RevealText>
-                  <p className="section-sub">
-                    Respuestas directas sobre facturación electrónica DGII y operación local.
-                  </p>
-                </div>
-
-                <EditorialAccordion items={FAQS_DATA} />
-
-                <div className="home-closing-cta">
-                  <div>
-                    <h3 style={{ fontSize: '1.35rem', fontWeight: 500, color: 'var(--text-primary)' }}>
-                      Empieza tu implementación hoy
-                    </h3>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '0.94rem', marginTop: '6px' }}>
-                      Agenda un diagnóstico técnico o demo guiada con nuestro equipo.
-                    </p>
-                  </div>
-                  <div className="home-closing-cta-actions">
-                    <MagneticButton
-                      href={WHATSAPP_URL}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      variant="primary"
-                    >
-                      Agendar demo
-                    </MagneticButton>
-                    <MagneticButton onClick={() => navigate('#/contacto')} variant="secondary">
-                      Contacto
-                    </MagneticButton>
-                  </div>
-                </div>
-              </div>
-            </EditorialSurface>
-          </motion.main>
-        )}
-
-        {/* VIEW: SERVICIOS CATÁLOGO (#/servicios) */}
-        {isServices && (
-          <motion.main
-            key="page-services"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className="page-header-banner">
-              <div className="container">
-                <a
-                  href="#/"
-                  className="breadcrumb-back-btn"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    navigate('#/');
-                  }}
-                >
-                  <ArrowLeft size={16} /> Volver al inicio
-                </a>
-                <RevealText as="h1">Catálogo de soluciones</RevealText>
-                <p style={{ color: 'var(--text-muted)', fontSize: '1.15rem', marginTop: '12px', maxWidth: '640px' }}>
-                  Plataformas modulares y autorizadas para la gestión administrativa, ventas y cumplimiento tributario.
-                </p>
-              </div>
-            </div>
-
-            <EditorialSurface variant="ambient" tone="secondary" style={{ paddingBlock: 'clamp(48px, 8vh, 80px)' }}>
-              <div className="container">
-                <div className="services-grid">
-                  {SERVICES_DATA.map((service) => (
-                    <div key={service.slug} className="service-card">
-                      <div className="service-card-media">
-                        <img
-                          src={service.photo}
-                          alt={service.title}
-                          className="service-card-img"
-                        />
-                      </div>
-                      <div className="service-card-body">
-                        <h2 style={{ fontSize: '1.35rem', fontWeight: 500, color: 'var(--text-primary)' }}>
-                          {service.title}
-                        </h2>
-                        <p className="service-card-desc">{service.shortDescription}</p>
-                        <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                          {service.features.map((feat, i) => (
-                            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.84rem', color: 'var(--text-muted)' }}>
-                              <CheckCircle2 size={14} color="var(--accent)" />
-                              <span>{feat.title}</span>
-                            </div>
-                          ))}
-                        </div>
-                        <a
-                          href={`#/servicios/${service.slug}`}
-                          className="service-card-link craft-link-underline"
-                          style={{ marginTop: '16px' }}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            navigate(`#/servicios/${service.slug}`);
-                          }}
-                        >
-                          Ver especificaciones <ArrowRight size={16} />
-                        </a>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </EditorialSurface>
-          </motion.main>
-        )}
-
-        {/* VIEW: SUBPÁGINA DEDICADA DE SERVICIO (#/servicios/<slug>) */}
-        {isServiceDetail && currentService && (
-          <motion.main
-            key={`page-service-${currentService.slug}`}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className="page-header-banner">
-              <div className="container">
-                <a
-                  href="#/servicios"
-                  className="breadcrumb-back-btn"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    navigate('#/servicios');
-                  }}
-                >
-                  <ArrowLeft size={16} /> Volver a servicios
-                </a>
-                <RevealText as="h1" immediate>
-                  {currentService.title}
-                </RevealText>
-                <p style={{ color: 'var(--text-muted)', fontSize: '1.15rem', marginTop: '14px', maxWidth: '720px' }}>
-                  {currentService.description}
-                </p>
-              </div>
-            </div>
-
-            <EditorialSurface variant="ambient" tone="primary">
-              <div className="container">
-                <div className="service-detail-grid">
-                  <div className="service-detail-content">
-                    <ClipRevealImage
-                      src={currentService.photo}
-                      alt={currentService.title}
-                      aspectRatio="16/9"
-                      parallax
-                    />
-
-                    <h2 style={{ fontSize: '1.6rem', fontWeight: 500, marginTop: '16px' }}>
-                      Beneficios clave del módulo
-                    </h2>
-
-                    <div className="service-features-deep">
-                      {currentService.features.map((feat, idx) => (
-                        <div key={idx} className="service-feature-card">
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                            <CheckCircle2 size={18} color="var(--accent-hover)" />
-                            <h3 style={{ fontSize: '1.15rem', fontWeight: 500, color: 'var(--text-primary)' }}>
-                              {feat.title}
-                            </h3>
-                          </div>
-                          <p style={{ color: 'var(--text-muted)', fontSize: '0.94rem', paddingLeft: '28px', lineHeight: 1.5 }}>
-                            {feat.desc}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <aside className="service-detail-sidebar">
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 500, color: 'var(--text-primary)' }}>
-                      Solicitar demostración
-                    </h3>
-                    <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
-                      Conversemos con un especialista técnico para revisar el alcance de este módulo en tu empresa.
-                    </p>
-                    <a
-                      href={`https://wa.me/18495644000?text=${encodeURIComponent(currentService.waMessage)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="package-cta-btn"
-                    >
-                      Consultar por WhatsApp
-                    </a>
-
-                    <div style={{ borderTop: '1px solid var(--border-hairline)', paddingTop: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.84rem', color: 'var(--text-muted)' }}>
-                        <CheckCircle2 size={15} color="var(--accent-hover)" />
-                        <span>Instalación asistida y capacitación</span>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.84rem', color: 'var(--text-muted)' }}>
-                        <CheckCircle2 size={15} color="var(--accent-hover)" />
-                        <span>Soporte técnico remoto directo</span>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.84rem', color: 'var(--text-muted)' }}>
-                        <CheckCircle2 size={15} color="var(--accent-hover)" />
-                        <span>Cumplimiento certificado DGII</span>
-                      </div>
-                    </div>
-                  </aside>
-                </div>
-              </div>
-            </EditorialSurface>
-          </motion.main>
-        )}
-
-        {/* VIEW: CASOS REALES (#/casos) */}
-        {isCases && (
-          <motion.main
-            key="page-cases"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className="page-header-banner">
-              <div className="container">
-                <a
-                  href="#/"
-                  className="breadcrumb-back-btn"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    navigate('#/');
-                  }}
-                >
-                  <ArrowLeft size={16} /> Volver al inicio
-                </a>
-                <RevealText as="h1">Casos y resultados reales</RevealText>
-                <p style={{ color: 'var(--text-muted)', fontSize: '1.15rem', marginTop: '12px', maxWidth: '640px' }}>
-                  Implementaciones verificadas en empresas comerciales, de servicios y distribución en República Dominicana.
-                </p>
-              </div>
-            </div>
-
-            <EditorialSurface variant="ambient" tone="secondary" style={{ paddingBlock: 'clamp(56px, 9vh, 90px)' }}>
-              <div className="container">
-                <div className="case-card-split" style={{ marginBottom: '48px' }}>
-                  <div className="case-card-media">
-                    <img
-                      src="./media/post_21.jpg"
-                      alt="Caso Retail & Wholesale"
-                      className="case-card-img"
-                    />
-                  </div>
-                  <div className="case-card-content">
-                    <h2 style={{ fontSize: '1.6rem', fontWeight: 500, color: 'var(--text-primary)' }}>
-                      Gestión Integral Retail & Wholesale
-                    </h2>
-                    <p style={{ color: 'rgba(255, 255, 255, 0.78)', fontSize: '0.95rem', lineHeight: 1.6 }}>
-                      <strong>Desafío:</strong> Negocios con información dispersa en múltiples herramientas, cierres de caja tardíos y procesos manuales lentos que dificultaban la expansión.
-                    </p>
-                    <p style={{ color: 'rgba(255, 255, 255, 0.78)', fontSize: '0.95rem', lineHeight: 1.6 }}>
-                      <strong>Solución:</strong> Centralización de ventas, inventario por sucursales y facturación electrónica autorizada DGII mediante la plataforma Figs Software.
-                    </p>
-                    <div style={{ display: 'flex', gap: '16px', marginTop: '12px', flexWrap: 'wrap' }}>
-                      <div style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '10px 16px', borderRadius: '8px' }}>
-                        <div style={{ fontSize: '1.2rem', fontWeight: 500, color: 'var(--accent-hover)' }}>DGII</div>
-                        <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Proveedor autorizado</div>
-                      </div>
-                      <div style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '10px 16px', borderRadius: '8px' }}>
-                        <div style={{ fontSize: '1.2rem', fontWeight: 500, color: 'var(--accent-hover)' }}>-90%</div>
-                        <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Trabajo manual</div>
-                      </div>
-                      <div style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '10px 16px', borderRadius: '8px' }}>
-                        <div style={{ fontSize: '1.2rem', fontWeight: 500, color: 'var(--accent-hover)' }}>Red Local</div>
-                        <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Operación continua</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Second Visual Showcase */}
-                <div className="case-card-split">
-                  <div className="case-card-content">
-                    <h2 style={{ fontSize: '1.6rem', fontWeight: 500, color: 'var(--text-primary)' }}>
-                      Estabilidad en alta demanda comercial
-                    </h2>
-                    <p style={{ color: 'rgba(255, 255, 255, 0.78)', fontSize: '0.95rem', lineHeight: 1.6 }}>
-                      Con Figs® POS Retail o POS Restaurante puedes cobrar, emitir comprobantes fiscales electrónicos e-CF y mantener tu inventario sincronizado incluso ante interrupciones de internet.
-                    </p>
-                    <div style={{ marginTop: '16px' }}>
-                      <MagneticButton href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" variant="primary">
-                        Solicitar asesoría
-                      </MagneticButton>
-                    </div>
-                  </div>
-                  <div className="case-card-media">
-                    <img
-                      src="./media/ai_service_2.webp"
-                      alt="Infraestructura de punto de venta Figs Software"
-                      className="case-card-img"
-                    />
-                  </div>
-                </div>
-              </div>
-            </EditorialSurface>
-          </motion.main>
-        )}
-
-        {/* VIEW: NOSOTROS (#/nosotros) */}
-        {isAbout && (
-          <motion.main
-            key="page-about"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className="page-header-banner">
-              <div className="container">
-                <a
-                  href="#/"
-                  className="breadcrumb-back-btn"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    navigate('#/');
-                  }}
-                >
-                  <ArrowLeft size={16} /> Volver al inicio
-                </a>
-                <RevealText as="h1">Más de 28 años de solidez</RevealText>
-                <p style={{ color: 'var(--text-muted)', fontSize: '1.15rem', marginTop: '12px', maxWidth: '640px' }}>
-                  Ingeniería de software nacida para cumplir los más altos estándares corporativos internacionales.
-                </p>
-              </div>
-            </div>
-
-            <EditorialSurface variant="ambient" tone="primary" style={{ paddingBlock: 'clamp(56px, 9vh, 90px)' }}>
-              <div className="container">
-                <div className="benefits-grid">
-                  <div className="benefits-content">
-                    <h2 style={{ fontSize: '1.75rem', fontWeight: 500 }}>Nuestra trayectoria</h2>
-                    <p style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '1rem', lineHeight: 1.65 }}>
-                      Nuestra empresa de software nace en Caracas, Venezuela en 1997 en base a contratos para el desarrollo de aplicaciones con empresas corporativas y firmas de auditoría de nivel mundial, definiendo altos estándares de calidad.
-                    </p>
-                    <p style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '1rem', lineHeight: 1.65 }}>
-                      En 2004 iniciamos proyectos en Colombia y República Dominicana, expandiéndonos en 2019 a Perú y Panamá. Ofrecemos una solución estable y amigable para la gestión de recursos empresariales (ERP), conectando ventas, inventario, operaciones, finanzas, contabilidad y facturación electrónica autorizada por la DGII.
-                    </p>
-
-                    <blockquote
-                      style={{
-                        borderLeft: '2px solid var(--accent)',
-                        paddingLeft: '18px',
-                        fontStyle: 'italic',
-                        color: 'var(--text-muted)',
-                        marginBlock: '12px',
-                        lineHeight: 1.5
-                      }}
-                    >
-                      "La facturación electrónica no es complicada cuando entiendes el proceso. Se trata de hacerlo en orden, con planificación y acompañamiento."
-                    </blockquote>
-
-                    <div style={{ marginTop: '16px' }}>
-                      <h3 style={{ fontSize: '1.1rem', fontWeight: 500, marginBottom: '12px' }}>
-                        Tecnologías verificadas
-                      </h3>
-                      <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                        {['SQL Server', 'Microsoft Windows', 'Mac', 'Tablets', 'Smartphones'].map((tech) => (
-                          <span
-                            key={tech}
-                            style={{
-                              background: 'rgba(255, 255, 255, 0.06)',
-                              border: '1px solid var(--border-hairline)',
-                              borderRadius: '6px',
-                              padding: '6px 14px',
-                              fontSize: '0.85rem',
-                              color: 'var(--text-primary)'
-                            }}
-                          >
-                            {tech}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="benefits-media-wrap">
-                    <ClipRevealImage
-                      src="./media/post_20.jpg"
-                      alt="Equipo y filosofía Figs Software"
-                      aspectRatio="4/5"
-                      parallax
-                    />
-                  </div>
-                </div>
-              </div>
-            </EditorialSurface>
-          </motion.main>
-        )}
-
-        {/* VIEW: CONTACTO (#/contacto) */}
-        {isContact && (
-          <motion.main
-            key="page-contact"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className="page-header-banner">
-              <div className="container">
-                <a
-                  href="#/"
-                  className="breadcrumb-back-btn"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    navigate('#/');
-                  }}
-                >
-                  <ArrowLeft size={16} /> Volver al inicio
-                </a>
-                <RevealText as="h1">Contacto y asesoría directa</RevealText>
-                <p style={{ color: 'var(--text-muted)', fontSize: '1.15rem', marginTop: '12px', maxWidth: '640px' }}>
-                  Atención personalizada para empresas en Santo Domingo, San Pedro de Macorís y toda la República Dominicana.
-                </p>
-              </div>
-            </div>
-
-            <EditorialSurface variant="ambient" tone="secondary">
-              <div className="container">
-                <div className="contact-grid">
-                  <div className="contact-card-info">
-                    <h2 style={{ fontSize: '1.5rem', fontWeight: 500 }}>Información verificada</h2>
-
-                    <div className="contact-item-row">
-                      <div className="contact-item-icon">
-                        <MapPin size={20} />
-                      </div>
-                      <div>
-                        <div style={{ fontWeight: 500, color: 'var(--text-primary)', marginBottom: '4px' }}>
-                          Ubicación y Cobertura
-                        </div>
-                        <div style={{ color: 'var(--text-muted)', fontSize: '0.92rem', lineHeight: 1.5 }}>
-                          Santo Domingo, República Dominicana · Cobertura en San Pedro de Macorís y a nivel nacional.
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="contact-item-row">
-                      <div className="contact-item-icon">
-                        <Phone size={20} />
-                      </div>
-                      <div>
-                        <div style={{ fontWeight: 500, color: 'var(--text-primary)', marginBottom: '4px' }}>
-                          Línea Directa y WhatsApp
-                        </div>
-                        <div style={{ color: 'var(--text-muted)', fontSize: '0.92rem', lineHeight: 1.5 }}>
-                          849-564-4000
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="contact-item-row">
-                      <div className="contact-item-icon">
-                        <ShieldCheck size={20} />
-                      </div>
-                      <div>
-                        <div style={{ fontWeight: 500, color: 'var(--text-primary)', marginBottom: '4px' }}>
-                          Certificación Oficial
-                        </div>
-                        <div style={{ color: 'var(--text-muted)', fontSize: '0.92rem', lineHeight: 1.5 }}>
-                          Proveedores autorizados de facturación electrónica e-CF ante la DGII.
-                        </div>
-                      </div>
-                    </div>
-
-                    <div style={{ marginTop: '12px' }}>
-                      <a
-                        href={WHATSAPP_URL}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="package-cta-btn"
-                        style={{ display: 'inline-flex', width: 'auto' }}
-                      >
-                        Iniciar conversación en WhatsApp
-                      </a>
-                    </div>
-                  </div>
-
-                  <div className="contact-card-info">
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 500, color: 'var(--text-primary)' }}>
-                      Cobertura y compatibilidad
-                    </h3>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: '12px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', borderBottom: '1px solid var(--border-hairline)', paddingBottom: '10px', fontSize: '0.92rem' }}>
-                        <span>República Dominicana</span>
-                        <span style={{ color: 'var(--accent-hover)', textAlign: 'right' }}>Santo Domingo y San Pedro de Macorís</span>
-                      </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', borderBottom: '1px solid var(--border-hairline)', paddingBottom: '10px', fontSize: '0.92rem' }}>
-                        <span>Presencia LATAM</span>
-                        <span style={{ color: 'var(--accent-hover)', textAlign: 'right' }}>RD, Colombia, Venezuela, Perú y Panamá</span>
-                      </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', borderBottom: '1px solid var(--border-hairline)', paddingBottom: '10px', fontSize: '0.92rem' }}>
-                        <span>Plataformas</span>
-                        <span style={{ color: 'var(--text-muted)', textAlign: 'right' }}>SQL Server · Windows · Mac · Tablets · Smartphones</span>
-                      </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', fontSize: '0.92rem' }}>
-                        <span>Paquete DGII e-CF</span>
-                        <span style={{ color: 'var(--text-primary)', fontWeight: 500, textAlign: 'right' }}>RD$30,000 (pago único)</span>
-                      </div>
-                    </div>
-
-                    <div style={{ marginTop: '24px', padding: '16px', background: 'rgba(255, 255, 255, 0.04)', borderRadius: '10px' }}>
-                      <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
-                        Incluye certificación ante la DGII, licencia de por vida Figs® POS Retail o Restaurante, 5,000 comprobantes, 2 horas de instalación y capacitación, y 1 año de soporte técnico remoto.
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </EditorialSurface>
-          </motion.main>
-        )}
-      </AnimatePresence>
-
-      {/* Corporate Footer */}
-      <footer className="footer-corp">
-        <div className="container">
-          <div className="footer-grid">
-            <div className="footer-brand-col">
-              <div className="brand-emblem-wrap">
-                <img
-                  src="./media/logo_real.jpg"
-                  alt="Figs Software Logo"
-                  className="brand-emblem-logo"
-                />
-                <div>
-                  <div className="brand-name">Figs Software</div>
-                  <div className="brand-subtext">ERP & Facturación DGII</div>
-                </div>
-              </div>
-              <p className="footer-desc">
-                Software empresarial ERP y proveedores autorizados de facturación electrónica ante la DGII en República Dominicana.
-              </p>
-            </div>
-
-            <div>
-              <div className="footer-col-title">Navegación</div>
-              <ul className="footer-links-list">
-                <li>
-                  <a href="#/" className="footer-link-a" onClick={(e) => { e.preventDefault(); navigate('#/'); }}>
-                    Inicio
-                  </a>
-                </li>
-                <li>
-                  <a href="#/servicios" className="footer-link-a" onClick={(e) => { e.preventDefault(); navigate('#/servicios'); }}>
-                    Soluciones ERP
-                  </a>
-                </li>
-                <li>
-                  <a href="#/casos" className="footer-link-a" onClick={(e) => { e.preventDefault(); navigate('#/casos'); }}>
-                    Casos Reales
-                  </a>
-                </li>
-                <li>
-                  <a href="#/nosotros" className="footer-link-a" onClick={(e) => { e.preventDefault(); navigate('#/nosotros'); }}>
-                    Nosotros
-                  </a>
-                </li>
-                <li>
-                  <a href="#/contacto" className="footer-link-a" onClick={(e) => { e.preventDefault(); navigate('#/contacto'); }}>
-                    Contacto
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <div className="footer-col-title">Soluciones</div>
-              <ul className="footer-links-list">
-                <li>
-                  <a href="#/servicios/facturacion-electronica-dgii" className="footer-link-a" onClick={(e) => { e.preventDefault(); navigate('#/servicios/facturacion-electronica-dgii'); }}>
-                    Facturación DGII (e-CF)
-                  </a>
-                </li>
-                <li>
-                  <a href="#/servicios/sistema-erp-gestion" className="footer-link-a" onClick={(e) => { e.preventDefault(); navigate('#/servicios/sistema-erp-gestion'); }}>
-                    Gestión Empresarial
-                  </a>
-                </li>
-                <li>
-                  <a href="#/servicios/pos-retail-wholesale" className="footer-link-a" onClick={(e) => { e.preventDefault(); navigate('#/servicios/pos-retail-wholesale'); }}>
-                    POS Retail & Wholesale
-                  </a>
-                </li>
-                <li>
-                  <a href="#/contacto" className="footer-link-a" onClick={(e) => { e.preventDefault(); navigate('#/contacto'); }}>
-                    Paquete DGII RD$30,000
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <div className="footer-col-title">Contacto</div>
-              <ul className="footer-links-list">
-                <li style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.88rem' }}>
-                  Santo Domingo, RD
-                </li>
-                <li>
-                  <a href="tel:8495644000" className="footer-link-a">
-                    849-564-4000
-                  </a>
-                </li>
-                <li>
-                  <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="footer-link-a">
-                    Instagram @figs.software
-                  </a>
-                </li>
-                <li>
-                  <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="footer-link-a">
-                    WhatsApp Directo
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="footer-bottom-bar">
-            <div>© {new Date().getFullYear()} Figs Software. Todos los derechos reservados.</div>
-            <div>Proveedor autorizado de Facturación Electrónica · República Dominicana</div>
-          </div>
-        </div>
-      </footer>
+      <Footer onNavigate={navigate} />
     </div>
   );
 }

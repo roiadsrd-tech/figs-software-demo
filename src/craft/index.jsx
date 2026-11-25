@@ -744,9 +744,9 @@ export function InteractiveGlobe({
 
     const isDark = themeMode !== 'light';
     const markerRgb = hexToRgbNormalized(accentColor);
-    const baseRgb = isDark ? [0.09, 0.14, 0.24] : [0.88, 0.87, 0.84];
+    const baseRgb = isDark ? [0.24, 0.35, 0.54] : [0.82, 0.80, 0.76];
     const glowRgb = isDark
-      ? [markerRgb[0] * 0.45 + 0.08, markerRgb[1] * 0.45 + 0.12, markerRgb[2] * 0.45 + 0.22]
+      ? [markerRgb[0] * 0.5 + 0.14, markerRgb[1] * 0.5 + 0.2, markerRgb[2] * 0.5 + 0.34]
       : [0.95, 0.94, 0.91];
 
     try {
@@ -757,9 +757,9 @@ export function InteractiveGlobe({
         phi: currentPhi,
         theta: currentTheta,
         dark: isDark ? 1 : 0,
-        diffuse: 1.4,
-        mapSamples: 14000,
-        mapBrightness: isDark ? 6.5 : 1.8,
+        diffuse: 2.0,
+        mapSamples: 18000,
+        mapBrightness: isDark ? 9.5 : 2.2,
         baseColor: baseRgb,
         markerColor: markerRgb,
         glowColor: glowRgb,
